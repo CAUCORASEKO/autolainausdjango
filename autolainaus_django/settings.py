@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rasekoautolainaus',
 ]
 
 MIDDLEWARE = [
@@ -54,8 +55,8 @@ ROOT_URLCONF = 'autolainaus_django.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
-        'APP_DIRS': True,
+        'DIRS': [BASE_DIR / 'templates'],  # Asegúrate de que aquí se incluya la carpeta 'templates'
+        'APP_DIRS': True,  # Permite que Django busque plantillas en las carpetas de las apps
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.debug',
@@ -66,6 +67,8 @@ TEMPLATES = [
         },
     },
 ]
+
+
 
 WSGI_APPLICATION = 'autolainaus_django.wsgi.application'
 
@@ -115,9 +118,17 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'  # URL base para acceder a los archivos estáticos
+
+# Directorios adicionales donde buscar archivos estáticos
+STATICFILES_DIRS = [
+    BASE_DIR / "static",  # Ruta al directorio de archivos estáticos en el proyecto
+]
+
+# Directorio donde se recopilarán los archivos estáticos en producción
+STATIC_ROOT = BASE_DIR / "staticfiles"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
-
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+

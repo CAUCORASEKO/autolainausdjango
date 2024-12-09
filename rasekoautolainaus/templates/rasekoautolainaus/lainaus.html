@@ -1,0 +1,60 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lainaus - Ajoneuvot</title>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body>
+    <div class="container">
+        <h1>Lainaus - Ajoneuvo</h1>
+
+        <h2>Opiskelija tiedot</h2>
+        <form method="post" class="lainaus-form">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="etunimi">Etunimi:</label>
+                <input type="text" id="etunimi" name="etunimi" required class="form-control">
+            </div>
+            <div class="form-group">
+                <label for="sukunimi">Sukunimi:</label>
+                <input type="text" id="sukunimi" name="sukunimi" required class="form-control">
+            </div>
+            <div class="form-group">
+                <label for="henkilotunnus">Henkilötunnus:</label>
+                <input type="text" id="henkilotunnus" name="henkilotunnus" required class="form-control">
+            </div>
+            <div class="form-group">
+                <label for="opiskelija_id">Opiskelija ID:</label>
+                <input type="text" id="opiskelija_id" name="opiskelija_id" required class="form-control">
+            </div>
+            <div class="form-group">
+                <label for="ajokorti_id">Ajokorti ID:</label>
+                <input type="text" id="ajokorti_id" name="ajokorti_id" required class="form-control">
+            </div>
+            <div class="form-group">
+                <label for="lainaus_pvm">Lainaus päivämäärä ja aika:</label>
+                <input type="datetime-local" id="lainaus_pvm" name="lainaus_pvm" required class="form-control">
+            </div>
+            <div class="form-group">
+                <label for="palautus_pvm">Sovittu palautuspäivämäärä ja aika:</label>
+                <input type="datetime-local" id="palautus_pvm" name="palautus_pvm" required class="form-control">
+            </div>
+
+            <input type="hidden" name="auto_id" value="{{ auto.id }}">
+
+            <button type="submit" class="btn btn-primary">Tallena</button>
+            <a href="{% url 'hallinto' %}" class="btn btn-secondary">Peruuttaa</a>
+        </form>
+
+        <h2>Ajoneuvo: {{ auto.marca }} {{ auto.modelo }}</h2>
+        <p><strong>Väri:</strong> {{ auto.color }}</p>
+        <p><strong>Vuosi:</strong> {{ auto.ano }}</p>
+        <p><strong>Kilometriluku:</strong> {{ auto.kilometraje }} km</p>
+        <p><strong>Tila:</strong> {{ auto.estado }}</p>
+    </div>
+</body>
+</html>
