@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+    <meta charset="UTF-8">
+    <title>Préstamo - Lainaus</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .container {
+            width: 80%;
+            margin: auto;
+        }
+        .barcode {
+            margin-top: 20px;
+        }
+        h1, h2, p {
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Lainaus</h1>
+        <h2>{{ auto.marca }} {{ auto.modelo }}</h2>
+        <p><strong>Väri:</strong> {{ auto.color }}</p>
+        <p><strong>Vuosi:</strong> {{ auto.ano }}</p>
+        <p><strong>Kilometriluku:</strong> {{ auto.kilometraje }} km</p>
+
+        <h2>Opiskelijan tiedot</h2>
+        <p><strong>Etunimi:</strong> {{ lainaus.opiskelija_etunimi }}</p>
+        <p><strong>Sukunimi:</strong> {{ lainaus.opiskelija_sukunimi }}</p>
+        <p><strong>Henkilötunnus:</strong> {{ lainaus.opiskelija_henkilotunnus }}</p>
+        <p><strong>Opiskelija ID:</strong> {{ lainaus.opiskelija_id }}</p>
+        <p><strong>Ajokortti ID:</strong> {{ lainaus.ajokorti_id }}</p>
+        <p><strong>Lainaus päivämäärä:</strong> {{ lainaus.lainaus_pvm }}</p>
+        <p><strong>Palautus päivämäärä:</strong> {{ lainaus.palautus_pvm }}</p>
+
+        <div class="barcode">
+            <h3>Koodi:</h3>
+            <img src="data:image/png;base64,{{ barcode_image }}" alt="Barcode">
+        </div>
+    </div>
+</body>
+</html>

@@ -50,13 +50,15 @@
             <li class="auto-item">
                 {{ auto.marca }} {{ auto.modelo }} - {{ auto.color }} ({{ auto.ano }}) - {{ auto.kilometraje }} km
                 <p><strong>Tila:</strong> {{ auto.estado|default:"Ei huomautuksia." }}</p>
+                <!-- Formulario para eliminar auto -->
                 <form method="post" action="{% url 'hallinto' %}" class="delete-form">
                     {% csrf_token %}
-                    <input type="hidden" name="auto_id" value="{{ auto.id }}">
+                    <input type="hidden" name="delete_auto_id" value="{{ auto.id }}">
                     <button type="submit" class="btn btn-danger" onclick="return confirm('Haluatko poistaa tämän ajoneuvon?');">Poista</button>
                 </form>
                 <!-- Botón Lainaus -->
                 <a href="{% url 'lainaus' auto.id %}" class="btn btn-secondary">Lainaus</a>
+
             </li>
             {% endfor %}
         </ul>

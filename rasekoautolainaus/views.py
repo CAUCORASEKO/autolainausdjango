@@ -2,9 +2,12 @@ from django.shortcuts import render, redirect
 from .models import Auto, Lainaus
 from django.http import HttpResponse
 import barcode
+import base64
 from barcode.writer import ImageWriter
 from io import BytesIO
 from datetime import datetime
+from django.template.loader import render_to_string
+from weasyprint import HTML
 
 # Función para obtener los datos del formulario
 def get_lainaus_form_data(request):
@@ -34,6 +37,10 @@ def get_auto(auto_id):
 
 # Función para generar el código de barras con el Ajokorti ID
 def generate_barcode_with_id(ajokorti_id):
+    if not ajokorti_id:
+        print("El valor de ajokorti_id es inválido:", ajokorti_id)
+        return None
+
     try:
         code128 = barcode.get_barcode_class('code128')
         barcode_obj = code128(ajokorti_id, writer=ImageWriter())
@@ -92,41 +99,64 @@ def hallinto_view(request):
     autot = Auto.objects.all()
     return render(request, 'rasekoautolainaus/hallinto.html', {'autot': autot})
 
-# Vista de préstamo de un automóvil
+# Vista para el préstamo de un automóvil (GET y POST)
 def lainaus_view(request, auto_id):
-    if request.method == "POST":
-        return process_lainaus_form(request, auto_id)
-
     auto = get_auto(auto_id)
     if not auto:
         return HttpResponse("Auto no encontrado.", status=404)
 
-    barcode_image = generate_barcode_with_id(auto_id)
-    return render(request, 'rasekoautolainaus/lainaus.html', {'auto': auto, 'barcode_image': barcode_image})
+    barcode_image = None  # Inicializamos la imagen de código de barras
 
-# Procesar datos del formulario de préstamo
-def process_lainaus_form(request, auto_id):
+    if request.method == "POST":
+        # Usar una named expression para simplificar la verificación de ajokorti_id
+        if ajokorti_id := request.POST.get('ajokorti_id'):
+            barcode_image = generate_barcode_with_id(ajokorti_id)
+        
+        # Guardamos el préstamo en la base de datos incluso si no se puede generar el código de barras
+        return process_lainaus_form(request, auto_id, barcode_image)
+
+    # Si es un GET, simplemente renderizamos el formulario
+    return render(request, 'rasekoautolainaus/lainaus.html', {
+        'auto': auto,
+        'barcode_image': barcode_image
+    })
+
+
+# Procesar datos del formulario de préstamo y generar vista imprimible
+def process_lainaus_form(request, auto_id, barcode_image=None):
     form_data = get_lainaus_form_data(request)
 
-    # Validar fechas
     lainaus_pvm = parse_datetime(form_data['lainaus_pvm'])
     palautus_pvm = parse_datetime(form_data['palautus_pvm'])
     if not lainaus_pvm or not palautus_pvm:
         return HttpResponse("Fecha inválida.", status=400)
 
-    # Obtener el auto correspondiente
     auto = get_auto(auto_id)
     if not auto:
         return HttpResponse("Auto no encontrado.", status=404)
 
-    # Generar código de barras
-    barcode_image = generate_barcode_with_id(form_data['ajokorti_id'])
+    # Intentar generar el código de barras si no se proporcionó
+    barcode_image = barcode_image or generate_barcode_with_id(form_data['ajokorti_id'])
     if barcode_image is None:
-        return HttpResponse("Error al generar el código de barras.", status=400)
-
-    # Crear el préstamo
+        print("No se pudo generar el código de barras, pero el préstamo se guarda.")
+    
+    # Crear el préstamo en la base de datos
     lainaus = create_lainaus(form_data, auto)
     if lainaus is None:
         return HttpResponse("Error al guardar el préstamo.", status=500)
 
-    return redirect('hallinto')
+    # Si hay un código de barras, intentamos generar el archivo PDF
+    if barcode_image:
+        html_content = render_to_string('rasekoautolainaus/lainaus_imprimible.html', {
+            'lainaus': lainaus,
+            'auto': auto,
+            'barcode_image': base64.b64encode(barcode_image.getvalue()).decode('utf-8'),
+        })
+
+        response = HttpResponse(content_type='application/pdf')
+        response['Content-Disposition'] = f'inline; filename="lainaus_{lainaus.id}.pdf"'
+        HTML(string=html_content).write_pdf(response)
+
+        return response
+    else:
+        return HttpResponse(f"Préstamo {lainaus.id} guardado sin código de barras o PDF.", status=200)

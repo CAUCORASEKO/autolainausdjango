@@ -7,33 +7,34 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lainaus - Ajoneuvot</title>
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.0/dist/JsBarcode.all.min.js"></script>  <!-- Cargar JsBarcode -->
 </head>
 <body>
     <div class="container">
         <h1>Lainaus - Ajoneuvo</h1>
 
-        <h2>Opiskelija tiedot</h2>
+        <h2>Opiskelijan tiedot</h2>
         <form method="post" class="lainaus-form">
             {% csrf_token %}
             <div class="form-group">
                 <label for="etunimi">Etunimi:</label>
-                <input type="text" id="etunimi" name="etunimi" required class="form-control">
+                <input type="text" id="etunimi" name="etunimi" placeholder="Kirjoita etunimi" required class="form-control">
             </div>
             <div class="form-group">
                 <label for="sukunimi">Sukunimi:</label>
-                <input type="text" id="sukunimi" name="sukunimi" required class="form-control">
+                <input type="text" id="sukunimi" name="sukunimi" placeholder="Kirjoita sukunimi" required class="form-control">
             </div>
             <div class="form-group">
                 <label for="henkilotunnus">Henkilötunnus:</label>
-                <input type="text" id="henkilotunnus" name="henkilotunnus" required class="form-control">
+                <input type="text" id="henkilotunnus" name="henkilotunnus" placeholder="Kirjoita henkilötunnus" required class="form-control">
             </div>
             <div class="form-group">
                 <label for="opiskelija_id">Opiskelija ID:</label>
-                <input type="text" id="opiskelija_id" name="opiskelija_id" required class="form-control">
+                <input type="text" id="opiskelija_id" name="opiskelija_id" placeholder="Kirjoita opiskelija ID" required class="form-control">
             </div>
             <div class="form-group">
-                <label for="ajokorti_id">Ajokorti ID:</label>
-                <input type="text" id="ajokorti_id" name="ajokorti_id" required class="form-control">
+                <label for="ajokorti_id">Ajokortti ID:</label>
+                <input type="text" id="ajokorti_id" name="ajokorti_id" placeholder="Kirjoita ajokortti ID" required class="form-control" oninput="generateBarcode()">
             </div>
             <div class="form-group">
                 <label for="lainaus_pvm">Lainaus päivämäärä ja aika:</label>
@@ -44,17 +45,38 @@
                 <input type="datetime-local" id="palautus_pvm" name="palautus_pvm" required class="form-control">
             </div>
 
+            <!-- Agregar input oculto para auto ID -->
             <input type="hidden" name="auto_id" value="{{ auto.id }}">
 
-            <button type="submit" class="btn btn-primary">Tallena</button>
-            <a href="{% url 'hallinto' %}" class="btn btn-secondary">Peruuttaa</a>
+            <div class="form-buttons">
+                <button type="submit" class="btn btn-primary">Tallenna</button>
+                <a href="{% url 'hallinto' %}" class="btn btn-secondary">Peruuta</a>
+            </div>
         </form>
 
         <h2>Ajoneuvo: {{ auto.marca }} {{ auto.modelo }}</h2>
-        <p><strong>Väri:</strong> {{ auto.color }}</p>
-        <p><strong>Vuosi:</strong> {{ auto.ano }}</p>
-        <p><strong>Kilometriluku:</strong> {{ auto.kilometraje }} km</p>
-        <p><strong>Tila:</strong> {{ auto.estado }}</p>
+        <ul>
+            <li><strong>Väri:</strong> {{ auto.color }}</li>
+            <li><strong>Vuosi:</strong> {{ auto.ano }}</li>
+            <li><strong>Kilometriluku:</strong> {{ auto.kilometraje }} km</li>
+            <li><strong>Tila:</strong> {{ auto.estado }}</li>
+        </ul>
+
+        <h3>Ajokortin Barcode:</h3>
+        <svg id="barcode"></svg> <!-- Aquí se dibuja el código de barras -->
     </div>
+
+    <script>
+        // Función para generar el código de barras dinámicamente
+        function generateBarcode() {
+            var ajokortiId = document.getElementById('ajokorti_id').value;
+            if (ajokortiId) {
+                JsBarcode("#barcode", ajokortiId, {
+                    format: "CODE128",
+                    displayValue: true
+                });
+            }
+        }
+    </script>
 </body>
 </html>
