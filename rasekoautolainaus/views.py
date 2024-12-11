@@ -9,7 +9,10 @@ from datetime import datetime
 from django.template.loader import render_to_string
 from weasyprint import HTML
 
-# Función para obtener los datos del formulario
+# Funktio lomaketietojen hakemiseen
+# Tämä funktio lukee tiedot HTTP POST -pyynnöstä ja palauttaa ne sanakirjana
+# Lomaketiedot sisältävät lainauksen ja opiskelijan tiedot
+
 def get_lainaus_form_data(request):
     return {
         'opiskelija_etunimi': request.POST.get('etunimi'),
@@ -21,24 +24,30 @@ def get_lainaus_form_data(request):
         'palautus_pvm': request.POST.get('palautus_pvm'),
     }
 
-# Función para convertir cadenas de fecha en objetos datetime
+# Funktio muuntaa merkkijonon datetime-objektiksi
+# Käytätään validoimaan ja tulkitsemaan lomaketietoja
+
 def parse_datetime(date_str):
     try:
         return datetime.strptime(date_str, '%Y-%m-%d %H:%M')
     except (ValueError, TypeError):
         return None
 
-# Función para obtener un auto por ID
+# Funktio hakee Auto-objektin ID:n perusteella
+# Jos autoa ei löydy, palautetaan None
+
 def get_auto(auto_id):
     try:
         return Auto.objects.get(id=auto_id)
     except Auto.DoesNotExist:
         return None
 
-# Función para generar el código de barras con el Ajokorti ID
+# Funktio viivakoodin generointiin ajokortti-ID:llä
+# Tämä luo viivakoodin, joka sisältää annettavan ajokortti-ID:n
+
 def generate_barcode_with_id(ajokorti_id):
     if not ajokorti_id:
-        print("El valor de ajokorti_id es inválido:", ajokorti_id)
+        print("Ajokortti-ID ei ole kelvollinen:", ajokorti_id)
         return None
 
     try:
@@ -49,10 +58,12 @@ def generate_barcode_with_id(ajokorti_id):
         barcode_io.seek(0)
         return barcode_io
     except Exception as e:
-        print(f"Error al generar el código de barras: {e}")
+        print(f"Virhe viivakoodin generoinnissa: {e}")
         return None
 
-# Función para crear un préstamo (Lainaus) en la base de datos
+# Funktio uuden lainauksen luomiseksi tietokantaan
+# Luo Lainaus-objektin ja tallentaa sen
+
 def create_lainaus(data, auto):
     try:
         return Lainaus.objects.create(
@@ -66,13 +77,16 @@ def create_lainaus(data, auto):
             auto=auto
         )
     except Exception as e:
-        print(f"Error al crear el préstamo: {e}")
+        print(f"Virhe lainauksen luomisessa: {e}")
         return None
 
-# Vista de administración de autos
+# Hallintasivu autojen lisäämiseen ja hallintaan
+# GET: palauttaa lista kaikista autoista
+# POST: lisää uuden auton tietokantaan
+
 def hallinto_view(request):
     if request.method == "POST":
-        # Validar datos del formulario
+        # Haetaan lomaketiedot
         marca = request.POST.get('marca')
         modelo = request.POST.get('modelo')
         color = request.POST.get('color')
@@ -80,7 +94,7 @@ def hallinto_view(request):
         kilometraje = request.POST.get('kilometraje')
         estado = request.POST.get('estado')
 
-        # Crear un nuevo Auto
+        # Yritetään luoda uusi Auto-objekti
         try:
             Auto.objects.create(
                 marca=marca,
@@ -91,61 +105,60 @@ def hallinto_view(request):
                 estado=estado
             )
         except Exception as e:
-            return HttpResponse(f"Error al guardar el auto: {e}", status=400)
+            return HttpResponse(f"Virhe auton tallentamisessa: {e}", status=400)
 
         return redirect('hallinto')
 
-    # Obtener todos los autos
+    # Haetaan kaikki autot tietokannasta
     autot = Auto.objects.all()
     return render(request, 'rasekoautolainaus/hallinto.html', {'autot': autot})
 
-# Vista para el préstamo de un automóvil (GET y POST)
+# Funktio auton lainaamiseen (GET ja POST)
 def lainaus_view(request, auto_id):
     auto = get_auto(auto_id)
     if not auto:
-        return HttpResponse("Auto no encontrado.", status=404)
+        return HttpResponse("Autoa ei löydy.", status=404)
 
-    barcode_image = None  # Inicializamos la imagen de código de barras
+    barcode_image = None  # Alustetaan viivakoodikuva
 
     if request.method == "POST":
-        # Usar una named expression para simplificar la verificación de ajokorti_id
+        # Haetaan ajokortti-ID ja luodaan viivakoodi
         if ajokorti_id := request.POST.get('ajokorti_id'):
             barcode_image = generate_barcode_with_id(ajokorti_id)
-        
-        # Guardamos el préstamo en la base de datos incluso si no se puede generar el código de barras
+
+        # Käsitellään lainauslomake ja palataan tulos
         return process_lainaus_form(request, auto_id, barcode_image)
 
-    # Si es un GET, simplemente renderizamos el formulario
+    # Jos on GET, palautetaan lomake
     return render(request, 'rasekoautolainaus/lainaus.html', {
         'auto': auto,
         'barcode_image': barcode_image
     })
 
-
-# Procesar datos del formulario de préstamo y generar vista imprimible
+# Käsittele lainauslomake ja luo näkymä tulostamista varten
 def process_lainaus_form(request, auto_id, barcode_image=None):
     form_data = get_lainaus_form_data(request)
 
     lainaus_pvm = parse_datetime(form_data['lainaus_pvm'])
     palautus_pvm = parse_datetime(form_data['palautus_pvm'])
     if not lainaus_pvm or not palautus_pvm:
-        return HttpResponse("Fecha inválida.", status=400)
+        return HttpResponse("Päiväys ei ole kelvollinen.", status=400)
 
     auto = get_auto(auto_id)
     if not auto:
-        return HttpResponse("Auto no encontrado.", status=404)
+        return HttpResponse("Autoa ei löydy.", status=404)
 
-    # Intentar generar el código de barras si no se proporcionó
+    # Yritetään luoda viivakoodi, jos sitä ei ole jo annettu
     barcode_image = barcode_image or generate_barcode_with_id(form_data['ajokorti_id'])
     if barcode_image is None:
-        print("No se pudo generar el código de barras, pero el préstamo se guarda.")
-    
-    # Crear el préstamo en la base de datos
+        print("Viivakoodia ei voitu luoda, mutta lainaus tallennetaan.")
+
+    # Luodaan lainaus tietokantaan
     lainaus = create_lainaus(form_data, auto)
     if lainaus is None:
-        return HttpResponse("Error al guardar el préstamo.", status=500)
+        return HttpResponse("Virhe lainauksen tallentamisessa.", status=500)
 
-    # Si hay un código de barras, intentamos generar el archivo PDF
+    # Jos viivakoodi on olemassa, luodaan PDF-tiedosto
     if barcode_image:
         html_content = render_to_string('rasekoautolainaus/lainaus_imprimible.html', {
             'lainaus': lainaus,
@@ -156,7 +169,8 @@ def process_lainaus_form(request, auto_id, barcode_image=None):
         response = HttpResponse(content_type='application/pdf')
         response['Content-Disposition'] = f'inline; filename="lainaus_{lainaus.id}.pdf"'
         HTML(string=html_content).write_pdf(response)
-
         return response
-    else:
-        return HttpResponse(f"Préstamo {lainaus.id} guardado sin código de barras o PDF.", status=200)
+
+    # Palautetaan onnistumisviesti ilman PDF-tiedostoa
+    return HttpResponse(f"Lainaus {lainaus.id} tallennettu ilman viivakoodia tai PDF-tiedostoa.", status=200)
+

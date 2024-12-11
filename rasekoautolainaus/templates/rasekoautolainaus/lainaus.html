@@ -7,7 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lainaus - Ajoneuvot</title>
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
-    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.0/dist/JsBarcode.all.min.js"></script>  <!-- Cargar JsBarcode -->
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.0/dist/JsBarcode.all.min.js"></script>  <!-- Lataa JsBarcode -->
 </head>
 <body>
     <div class="container">
@@ -45,7 +45,7 @@
                 <input type="datetime-local" id="palautus_pvm" name="palautus_pvm" required class="form-control">
             </div>
 
-            <!-- Agregar input oculto para auto ID -->
+            <!-- Piilotettu kenttä auton ID:lle -->
             <input type="hidden" name="auto_id" value="{{ auto.id }}">
 
             <div class="form-buttons">
@@ -63,11 +63,11 @@
         </ul>
 
         <h3>Ajokortin Barcode:</h3>
-        <svg id="barcode"></svg> <!-- Aquí se dibuja el código de barras -->
+        <svg id="barcode"></svg> <!-- Tähän piirretään viivakoodi -->
     </div>
 
     <script>
-        // Función para generar el código de barras dinámicamente
+        // Funktio viivakoodin luomiseen dynaamisesti
         function generateBarcode() {
             var ajokortiId = document.getElementById('ajokorti_id').value;
             if (ajokortiId) {
@@ -80,3 +80,4 @@
     </script>
 </body>
 </html>
+
