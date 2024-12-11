@@ -19,7 +19,7 @@ from django.urls import path, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('rasekoautolainaus/', include('rasekoautolainaus.urls')),  # Ruta para la app 'rasekoautolainaus'
-    path('', include('rasekoautolainaus.urls')),  # Asegura que la raíz redirija a la app
+    path('rasekoautolainaus/', include('rasekoautolainaus.urls')),  # Reitti sovellukselle 'rasekoautolainaus'
+    path('', include('rasekoautolainaus.urls')),  # Varmistaa, että juuripolku ohjaa sovellukseen
 ]
 

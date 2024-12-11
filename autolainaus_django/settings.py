@@ -12,23 +12,23 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 from pathlib import Path
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
+# Määritä polut projektin sisällä näin: BASE_DIR / 'alihakemisto'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
+# Nopea aloituskehitysympäristön asetukset - ei sovellu tuotantoon
+# Katso https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
+# TURVALLISUUSVAROITUS: pidä tuotannossa käytettävä salainen avain salassa!
 SECRET_KEY = 'django-insecure-sqj@1nb%x=f-@%#&5c&x03()bl4ola!gq%y@qvau9$gqbf!-4i'
 
-# SECURITY WARNING: don't run with debug turned on in production!
+# TURVALLISUUSVAROITUS: älä käytä debug-tilaa tuotannossa!
 DEBUG = True
 
 ALLOWED_HOSTS = []
 
 
-# Application definition
+# Sovelluksen määrittely
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -55,8 +55,8 @@ ROOT_URLCONF = 'autolainaus_django.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates'],  # Asegúrate de que aquí se incluya la carpeta 'templates'
-        'APP_DIRS': True,  # Permite que Django busque plantillas en las carpetas de las apps
+        'DIRS': [BASE_DIR / 'templates'],  # Varmista, että tämä polku sisältää 'templates'-kansion
+        'APP_DIRS': True,  # Mahdollistaa Djangoa etsimään malleja sovellusten kansioista
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.debug',
@@ -68,12 +68,10 @@ TEMPLATES = [
     },
 ]
 
-
-
 WSGI_APPLICATION = 'autolainaus_django.wsgi.application'
 
 
-# Database
+# Tietokanta
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 DATABASES = {
@@ -84,7 +82,7 @@ DATABASES = {
 }
 
 
-# Password validation
+# Salasanan vahvistus
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
@@ -103,7 +101,7 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
-# Internationalization
+# Kansainvälistyminen
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
@@ -115,20 +113,19 @@ USE_I18N = True
 USE_TZ = True
 
 
-# Static files (CSS, JavaScript, Images)
+# Staattiset tiedostot (CSS, JavaScript, kuvat)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
-STATIC_URL = '/static/'  # URL base para acceder a los archivos estáticos
+STATIC_URL = '/static/'  # Perus-URL staattisiin tiedostoihin pääsyyn
 
-# Directorios adicionales donde buscar archivos estáticos
+# Lisäpolut, joista etsitään staattisia tiedostoja
 STATICFILES_DIRS = [
-    BASE_DIR / "static",  # Ruta al directorio de archivos estáticos en el proyecto
+    BASE_DIR / "static",  # Polku projektin staattisiin tiedostoihin
 ]
 
-# Directorio donde se recopilarán los archivos estáticos en producción
+# Polku, johon staattiset tiedostot kerätään tuotannossa
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
-# Default primary key field type
+# Oletus pääavainkentän tyyppi
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-

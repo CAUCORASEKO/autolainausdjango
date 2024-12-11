@@ -6,7 +6,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hallintapaneeli</title>
-    <!-- Estilos CSS -->
+    <!-- CSS-tyylit -->
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
 </head>
 <body>
@@ -16,7 +16,7 @@
         <h2>Lisää uusi auto</h2>
         <form method="post" class="auto-form">
             {% csrf_token %}
-            <!-- Formulario para agregar el auto -->
+            <!-- Lomake uuden auton lisäämiseksi -->
             <div class="form-group">
                 <label for="marca">Marka:</label>
                 <input type="text" id="marca" name="marca" required class="form-control">
@@ -50,13 +50,13 @@
             <li class="auto-item">
                 {{ auto.marca }} {{ auto.modelo }} - {{ auto.color }} ({{ auto.ano }}) - {{ auto.kilometraje }} km
                 <p><strong>Tila:</strong> {{ auto.estado|default:"Ei huomautuksia." }}</p>
-                <!-- Formulario para eliminar auto -->
+                <!-- Lomake auton poistamiseksi -->
                 <form method="post" action="{% url 'hallinto' %}" class="delete-form">
                     {% csrf_token %}
                     <input type="hidden" name="delete_auto_id" value="{{ auto.id }}">
                     <button type="submit" class="btn btn-danger" onclick="return confirm('Haluatko poistaa tämän ajoneuvon?');">Poista</button>
                 </form>
-                <!-- Botón Lainaus -->
+                <!-- Lainaus-painike -->
                 <a href="{% url 'lainaus' auto.id %}" class="btn btn-secondary">Lainaus</a>
 
             </li>
