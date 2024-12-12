@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from .models import Auto, Lainaus
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 import barcode
 import base64
 from barcode.writer import ImageWriter
@@ -8,11 +8,11 @@ from io import BytesIO
 from datetime import datetime
 from django.template.loader import render_to_string
 from weasyprint import HTML
+from django.shortcuts import get_object_or_404
 
 # Funktio lomaketietojen hakemiseen
 # Tämä funktio lukee tiedot HTTP POST -pyynnöstä ja palauttaa ne sanakirjana
 # Lomaketiedot sisältävät lainauksen ja opiskelijan tiedot
-
 def get_lainaus_form_data(request):
     return {
         'opiskelija_etunimi': request.POST.get('etunimi'),
@@ -25,17 +25,19 @@ def get_lainaus_form_data(request):
     }
 
 # Funktio muuntaa merkkijonon datetime-objektiksi
-# Käytätään validoimaan ja tulkitsemaan lomaketietoja
-
+# Käytetään validoimaan ja tulkitsemaan lomaketietoja
 def parse_datetime(date_str):
     try:
+        # Intentamos convertir con "T" entre fecha y hora
+        if 'T' in date_str:
+            date_str = date_str.replace('T', ' ')
         return datetime.strptime(date_str, '%Y-%m-%d %H:%M')
     except (ValueError, TypeError):
         return None
 
+
 # Funktio hakee Auto-objektin ID:n perusteella
 # Jos autoa ei löydy, palautetaan None
-
 def get_auto(auto_id):
     try:
         return Auto.objects.get(id=auto_id)
@@ -44,7 +46,6 @@ def get_auto(auto_id):
 
 # Funktio viivakoodin generointiin ajokortti-ID:llä
 # Tämä luo viivakoodin, joka sisältää annettavan ajokortti-ID:n
-
 def generate_barcode_with_id(ajokorti_id):
     if not ajokorti_id:
         print("Ajokortti-ID ei ole kelvollinen:", ajokorti_id)
@@ -62,8 +63,7 @@ def generate_barcode_with_id(ajokorti_id):
         return None
 
 # Funktio uuden lainauksen luomiseksi tietokantaan
-# Luo Lainaus-objektin ja tallentaa sen
-
+# Luo Lainaus-objekti ja tallentaa sen
 def create_lainaus(data, auto):
     try:
         return Lainaus.objects.create(
@@ -83,7 +83,6 @@ def create_lainaus(data, auto):
 # Hallintasivu autojen lisäämiseen ja hallintaan
 # GET: palauttaa lista kaikista autoista
 # POST: lisää uuden auton tietokantaan
-
 def hallinto_view(request):
     if request.method == "POST":
         # Haetaan lomaketiedot
@@ -174,3 +173,36 @@ def process_lainaus_form(request, auto_id, barcode_image=None):
     # Palautetaan onnistumisviesti ilman PDF-tiedostoa
     return HttpResponse(f"Lainaus {lainaus.id} tallennettu ilman viivakoodia tai PDF-tiedostoa.", status=200)
 
+# Funktio lainauksen palautukseen
+# Palauttaa auton ja merkitsee lainauksen palautetuksi
+def palautus_view(request, lainaus_id):
+    lainaus = get_object_or_404(Lainaus, id=lainaus_id)
+
+    if request.method == "POST":
+        # Merkitään palautettu auto
+        lainaus.palautus_pvm = datetime.now()
+        lainaus.save()
+
+        # Päivitetään auton tila
+        auto = lainaus.auto
+        auto.estado = 'Palautettu'
+        auto.save()
+
+        return HttpResponse(f"Auto palautettu, lainaus ID: {lainaus.id} on nyt palautettu.", status=200)
+
+    return render(request, 'rasekoautolainaus/palautus.html', {'lainaus': lainaus})
+
+# Funktio lainauksen tietojen hakemiseen viivakoodin perusteella
+def hae_lainaus_tiedot(request, barcode):
+    try:
+        # Etsitään lainaus viivakoodilla
+        lainaus = Lainaus.objects.get(ajokorti_id=barcode)
+        return JsonResponse({
+            'success': True,
+            'lainaus_id': lainaus.id
+        })
+    except Lainaus.DoesNotExist:
+        return JsonResponse({
+            'success': False,
+            'message': 'Viivakoodia ei löytynyt'
+        })
