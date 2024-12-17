@@ -11,6 +11,8 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
+from decouple import config
+
 
 # Määritä polut projektin sisällä näin: BASE_DIR / 'alihakemisto'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,12 +22,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Katso https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # TURVALLISUUSVAROITUS: pidä tuotannossa käytettävä salainen avain salassa!
-SECRET_KEY = 'django-insecure-sqj@1nb%x=f-@%#&5c&x03()bl4ola!gq%y@qvau9$gqbf!-4i'
+SECRET_KEY = config('SECRET_KEY', default='insecure-default-key')
 
 # TURVALLISUUSVAROITUS: älä käytä debug-tilaa tuotannossa!
-DEBUG = True
+DEBUG = config('DEBUG', default=True, cast=bool)
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = config('DJANGO_ALLOWED_HOSTS', default='').split(',')
 
 
 # Sovelluksen määrittely
@@ -129,3 +131,8 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 # Oletus pääavainkentän tyyppi
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+LOGIN_URL = '/'  # Redirige a la página de login si no está autenticado
+LOGIN_REDIRECT_URL = 'hallinto'  # Redirige al panel de administración después de iniciar sesión
+LOGOUT_REDIRECT_URL = 'login'  # Redirige al login después de cerrar sesión

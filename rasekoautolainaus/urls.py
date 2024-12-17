@@ -1,21 +1,20 @@
 from django.urls import path
-from . import views
+from . import views  # Importamos las vistas de la app
 
 urlpatterns = [
-    # Juuri ohjataan hallinto-näkymään
-    # Tämä reitti vie hallintapaneeliin, jossa voidaan hallita autoja
-    path('', views.hallinto_view, name='hallinto'),  # Juuri ohjataan hallinto-näkymään
+    # Página de inicio - login
+    path('', views.login_view, name='login'),
     
-    # Hallinnon hallintapaneeli
-    # Tämä reitti vie käyttäjän autojen hallintanäkymään,
-    # jossa voi lisätä ja hallita autoja
-    path('hallinto/', views.hallinto_view, name='hallinto'),  # Hallinnon hallintapaneeli
+    # Logout para cerrar sesión
+    path('logout/', views.logout_view, name='logout'),
+    
+    # Hallintapaneeli (requiere autenticación)
+    path('hallinto/', views.hallinto_view, name='hallinto'),
     
     # Reitti ajoneuvon lainaamiseen
-    # Tämä reitti vie ajoneuvon lainaussivulle, jossa voidaan tehdä lainaustapahtuma
-    path('lainaus/<int:auto_id>/', views.lainaus_view, name='lainaus'),  # Reitti ajoneuvon lainaamiseen
+    path('lainaus/<int:auto_id>/', views.lainaus_view, name='lainaus'),
     
     # Reitti ajoneuvon palautukseen
-    # Tämä reitti vie käyttäjän palautus-sivulle, jossa voi merkitä auton palautetuksi
-    path('palautus/<int:lainaus_id>/', views.palautus_view, name='palautus'),  # Reitti ajoneuvon palautukseen
+    path('palautus/<int:lainaus_id>/', views.palautus_view, name='palautus'),
 ]
+
