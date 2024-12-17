@@ -13,7 +13,7 @@
     <div class="container">
         <h1>Lainaus - Ajoneuvo</h1>
 
-        <h2>Opiskelijan tiedot</h2>
+        <h2>Lainanottaja tiedot</h2>
         <form method="post" class="lainaus-form">
             {% csrf_token %}
             <div class="form-group">
@@ -29,7 +29,7 @@
                 <input type="text" id="henkilotunnus" name="henkilotunnus" placeholder="Kirjoita henkilötunnus" required class="form-control">
             </div>
             <div class="form-group">
-                <label for="opiskelija_id">Opiskelija ID:</label>
+                <label for="opiskelija_id">Lainanottaja ID:</label>
                 <input type="text" id="opiskelija_id" name="opiskelija_id" placeholder="Kirjoita opiskelija ID" required class="form-control">
             </div>
             <div class="form-group">
