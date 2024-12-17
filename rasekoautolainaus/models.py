@@ -19,24 +19,22 @@ class Lainaus(models.Model):
     opiskelija_id = models.CharField(max_length=20)  # Opiskelijan tunniste
     ajokorti_id = models.CharField(max_length=20)  # Ajokortin tunniste
     lainaus_pvm = models.DateTimeField()  # Lainauksen aloituspäivä ja aika
-    palautus_pvm = models.DateTimeField()  # Lainauksen palautuspäivä ja aika
-    
-    
-    
-class Lainaus(models.Model):
-    auto = models.ForeignKey(Auto, on_delete=models.CASCADE, related_name="lainaukset")  # Viite lainattavaan autoon
-    opiskelija_etunimi = models.CharField(max_length=100)  # Opiskelijan etunimi
-    opiskelija_sukunimi = models.CharField(max_length=100)  # Opiskelijan sukunimi
-    opiskelija_henkilotunnus = models.CharField(max_length=11)  # Opiskelijan henkilötunnus
-    opiskelija_id = models.CharField(max_length=20)  # Opiskelijan tunniste
-    ajokorti_id = models.CharField(max_length=20)  # Ajokortin tunniste
-    lainaus_pvm = models.DateTimeField()  # Lainauksen aloituspäivä ja aika
     palautus_pvm = models.DateTimeField(null=True, blank=True)  # Lainauksen palautuspäivämäärä ja aika
     palautettu = models.BooleanField(default=False)  # Campo que indica si el auto ha sido devuelto
-
-    def __str__(self):
-        return f"{self.opiskelija_etunimi} {self.opiskelija_sukunimi} - {self.auto}"
-
+    luokka = models.CharField(
+    max_length=5, 
+    choices=[
+        ('A', 'A'),
+        ('B', 'B'),
+        ('C', 'C'),
+        ('D', 'D'),
+        ('CE', 'CE'),
+        ('DE', 'DE'),
+        ('T', 'T'),
+    ], 
+    blank=False,
+    default='A'  # Valor predeterminado para los nuevos registros
+) 
 
     def __str__(self):
         return f"{self.opiskelija_etunimi} {self.opiskelija_sukunimi} - {self.auto}"

@@ -107,6 +107,10 @@ def process_lainaus_form(request, auto_id, barcode_image=None):
         return HttpResponse("Autoa ei löydy.", status=404)
 
     barcode_image = barcode_image or generate_barcode_with_id(form_data['ajokorti_id'])
+    
+    # Aquí agregamos el campo 'luokka' que viene del formulario
+    form_data['luokka'] = request.POST.get('luokka')
+
     lainaus = create_lainaus(form_data, auto)
 
     if lainaus is None:
@@ -124,6 +128,8 @@ def process_lainaus_form(request, auto_id, barcode_image=None):
         return response
 
     return HttpResponse(f"Lainaus {lainaus.id} tallennettu ilman viivakoodia tai PDF-tiedostoa.", status=200)
+
+
 
 
 # Generoi viivakoodi ajokortti-ID:lle
@@ -155,7 +161,9 @@ def get_lainaus_form_data(request):
         'ajokorti_id': request.POST.get('ajokorti_id'),
         'lainaus_pvm': request.POST.get('lainaus_pvm'),
         'palautus_pvm': request.POST.get('palautus_pvm'),
+        'luokka': request.POST.get('luokka'),  # Nuevo campo
     }
+
 
 
 # Hae Auto-objekti ID:llä
@@ -176,6 +184,7 @@ def parse_datetime(date_str):
         return None
 
 
+
 # Luo uusi lainaus tietokantaan
 def create_lainaus(data, auto):
     try:
@@ -187,8 +196,10 @@ def create_lainaus(data, auto):
             ajokorti_id=data['ajokorti_id'],
             lainaus_pvm=data['lainaus_pvm'],
             palautus_pvm=data['palautus_pvm'],
-            auto=auto
+            auto=auto,
+            luokka=data['luokka'],  # Asegúrate de incluir 'luokka'
         )
     except Exception as e:
         print(f"Virhe lainauksen luomisessa: {e}")
         return None
+

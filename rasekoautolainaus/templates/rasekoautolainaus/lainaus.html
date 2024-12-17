@@ -44,7 +44,20 @@
                 <label for="palautus_pvm">Sovittu palautuspäivämäärä ja aika:</label>
                 <input type="datetime-local" id="palautus_pvm" name="palautus_pvm" required class="form-control">
             </div>
-
+            <!-- Uusi kenttä: Luokan valinta -->
+            <div class="form-group">
+                <label for="luokka">Ajokortin luokka:</label>
+                <select id="luokka" name="luokka" required class="form-control">
+                    <option value="" disabled selected>Valitse luokka</option>
+                    <option value="A">A</option>
+                    <option value="B">B</option>
+                    <option value="C">C</option>
+                    <option value="D">D</option>
+                    <option value="CE">CE</option>
+                    <option value="DE">DE</option>
+                    <option value="T">T</option>
+                </select>
+            </div>
             <!-- Piilotettu kenttä auton ID:lle -->
             <input type="hidden" name="auto_id" value="{{ auto.id }}">
 
@@ -80,4 +93,3 @@
     </script>
 </body>
 </html>
-
