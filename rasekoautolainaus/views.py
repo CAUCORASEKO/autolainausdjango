@@ -11,6 +11,8 @@ from datetime import datetime
 from django.template.loader import render_to_string
 from weasyprint import HTML
 
+
+
 # --- Autentikointi ja käyttäjänhallinta ---
 
 # Kirjautumissivu
@@ -76,19 +78,40 @@ def lainaus_view(request, auto_id):
 
 
 # Palauta auto ja merkitse lainaus palautetuksi
+
 def palautus_view(request, lainaus_id):
     lainaus = get_object_or_404(Lainaus, id=lainaus_id)
 
     if request.method == "POST":
+        # Validar kilometraje ingresado
+        palautus_kilometraje = request.POST.get('kilometraje')
+        if not palautus_kilometraje:
+            return HttpResponse("Virhe: Palautuskilometrit on pakollinen.", status=400)
+        
+        try:
+            palautus_kilometraje = int(palautus_kilometraje)
+        except ValueError:
+            return HttpResponse("Virhe: Kilometriluvun täytyy olla numero.", status=400)
+
+        if palautus_kilometraje < lainaus.auto.kilometraje:
+            return HttpResponse("Virhe: Palautuskilometriluku ei voi olla pienempi kuin nykyinen kilometriluku.", status=400)
+
+        # Actualizar información de devolución
         lainaus.palautus_pvm = datetime.now()
+        lainaus.palautettu = True
         lainaus.save()
 
         auto = lainaus.auto
+        auto.kilometraje = palautus_kilometraje
         auto.estado = 'Palautettu'
         auto.save()
+
+        # Respuesta exitosa
         return HttpResponse(f"Auto palautettu, lainaus ID: {lainaus.id} on nyt palautettu.", status=200)
 
+    # Renderizar la plantilla de devolución
     return render(request, 'rasekoautolainaus/palautus.html', {'lainaus': lainaus})
+
 
 
 # --- Viivakoodi ja PDF-hallinta ---
@@ -203,3 +226,26 @@ def create_lainaus(data, auto):
         print(f"Virhe lainauksen luomisessa: {e}")
         return None
 
+
+# Uusi näkymä manuaalista palautusta varten
+
+@login_required
+def palautus_manual_view(request, auto_id):
+    auto = get_auto(auto_id)
+
+    if request.method == 'POST':
+        # Hanki tiedot manuaalisesti lomakkeelta
+        lainaus_id = request.POST.get('lainaus_id')  # tai käytä rekisterinumeroa, valintasi mukaan
+        try:
+            lainaus = Lainaus.objects.get(id=lainaus_id, auto=auto)
+            lainaus.palautus_pvm = datetime.now()  # Asetetaan palautuspäivämäärä
+            lainaus.save()
+
+            auto.estado = 'Palautettu'  # Muutetaan auton tila palautetuksi
+            auto.save()
+
+            return HttpResponse(f"Auto palautettu manuaalisesti, lainaus ID: {lainaus.id}.", status=200)
+        except Lainaus.DoesNotExist:
+            return HttpResponse("Lainaus ei löytynyt.", status=404)  # Jos lainausta ei löydy
+
+    return render(request, 'rasekoautolainaus/palautus_manual.html', {'auto': auto})  # Palautetaan HTML-näkymä

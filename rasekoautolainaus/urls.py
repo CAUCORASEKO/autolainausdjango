@@ -16,5 +16,8 @@ urlpatterns = [
     
     # Reitti ajoneuvon palautukseen
     path('palautus/<int:lainaus_id>/', views.palautus_view, name='palautus'),
+    
+    # Manuaalinen paluureitti
+    path('palautus/manual/<int:auto_id>/', views.palautus_manual_view, name='palautus_manual'),
 ]
 

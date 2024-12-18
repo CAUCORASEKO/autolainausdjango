@@ -1,0 +1,37 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Devolución Manual</title>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body>
+    <div class="container">
+        <h1>Devolución Manual - {{ auto.marca }} {{ auto.modelo }}</h1>
+
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="lainaus_id">Lainaus ID:</label>
+                <input type="text" id="lainaus_id" name="lainaus_id" placeholder="Syötä lainaus ID" required class="form-control">
+            </div>
+
+            <div class="form-group">
+                <label for="kilometraje_palautus">Kilometriluku palautettaessa:</label>
+                <input type="number" id="kilometraje_palautus" name="kilometraje_palautus" placeholder="Syötä kilometriluku" required class="form-control">
+            </div>
+
+            <div class="form-group">
+                <label for="huomautukset">Huomiot palautuksesta:</label>
+                <textarea id="huomautukset" name="huomautukset" placeholder="Kirjoita mahdolliset huomiot auton kunnosta..." class="form-control"></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Vahvista Palautus</button>
+            <a href="{% url 'hallinto' %}" class="btn btn-secondary">Peruuta</a>
+        </form>
+    </div>
+</body>
+</html>

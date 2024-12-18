@@ -48,16 +48,22 @@
         <ul class="auto-list">
             {% for auto in autot %}
             <li class="auto-item">
+                <!-- Auto tiedot -->
                 {{ auto.marca }} {{ auto.modelo }} - {{ auto.color }} ({{ auto.ano }}) - {{ auto.kilometraje }} km
                 <p><strong>Tila:</strong> {{ auto.estado|default:"Ei huomautuksia." }}</p>
+                
                 <!-- Lomake auton poistamiseksi -->
                 <form method="post" action="{% url 'hallinto' %}" class="delete-form">
                     {% csrf_token %}
                     <input type="hidden" name="delete_auto_id" value="{{ auto.id }}">
                     <button type="submit" class="btn btn-danger" onclick="return confirm('Haluatko poistaa tämän ajoneuvon?');">Poista</button>
                 </form>
+
                 <!-- Lainaus-painike -->
                 <a href="{% url 'lainaus' auto.id %}" class="btn btn-secondary">Lainaus</a>
+
+                <!-- Manuaalinen palautus - uusi painike -->
+                <a href="{% url 'palautus_manual' auto.id %}" class="btn btn-warning">Manuaalinen palautus</a>
 
             </li>
             {% endfor %}

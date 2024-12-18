@@ -5,69 +5,94 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Palautus - Ajoneuvo</title>
+    <title>Ajoneuvon palautus</title>
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
 </head>
 <body>
     <div class="container">
-        <h1>Palautus - Ajoneuvo</h1>
+        <!-- Sivun otsikko -->
+        <h1>Ajoneuvon palautus</h1>
 
-        <!-- Campo para la lectura del código de barras -->
-        <h2>Lue viivakoodi</h2>
-        <div class="form-group">
-            <label for="barcode_input">Viivakoodi:</label>
-            <input type="text" id="barcode_input" name="barcode_input" placeholder="Lue viivakoodi..." autofocus required class="form-control">
-        </div>
-
-        <h2>Palautustiedot</h2>
-        <form method="post" class="palautus-form">
-            {% csrf_token %}
-            <!-- Huomautukset -->
+        <!-- Viivakoodin syöttö -->
+        <section class="barcode-section">
+            <h2>Viivakoodin lukeminen</h2>
             <div class="form-group">
-                <label for="huomautukset">Huomiot palautuksesta:</label>
-                <textarea id="huomautukset" name="huomautukset" placeholder="Kirjoita mahdolliset huomiot auton kunnosta..." class="form-control"></textarea>
+                <label for="barcode_input">Viivakoodi:</label>
+                <input 
+                    type="text" 
+                    id="barcode_input" 
+                    name="barcode_input" 
+                    placeholder="Lue viivakoodi..." 
+                    autofocus 
+                    required 
+                    class="form-control">
             </div>
+        </section>
 
-            <!-- Kilometriluku palautettaessa -->
-            <div class="form-group">
-                <label for="kilometraje_palautus">Kilometriluku palautettaessa:</label>
-                <input type="number" id="kilometraje_palautus" name="kilometraje_palautus" placeholder="Kirjoita kilometriluku" required class="form-control">
-            </div>
+        <!-- Palautustiedot ja lomake -->
+        <section class="return-details">
+            <h2>Palautustiedot</h2>
+            <form method="post" class="palautus-form">
+                {% csrf_token %}
 
-            <!-- Piilotettu kenttä auton ID:lle -->
-            <input type="hidden" name="auto_id" value="{{ lainaus.auto.id }}">
+                <!-- Huomautukset auton palautuksesta -->
+                <div class="form-group">
+                    <label for="huomautukset">Huomiot palautuksesta:</label>
+                    <textarea 
+                        id="huomautukset" 
+                        name="huomautukset" 
+                        placeholder="Kirjoita mahdolliset huomiot auton kunnosta..." 
+                        class="form-control"></textarea>
+                </div>
 
-            <!-- Näytä lainauksen tiedot -->
-            <h2>Lainauksen tiedot</h2>
-            <ul>
-                <li><strong>Opiskelijan nimi:</strong> {{ lainaus.opiskelija.nimi }}</li>
-                <li><strong>Opiskelija ID:</strong> {{ lainaus.opiskelija.id }}</li>
-                <li><strong>Lainaus päivämäärä:</strong> {{ lainaus.lainaus_pvm }}</li>
-                <li><strong>Sovittu palautuspäivämäärä:</strong> {{ lainaus.palautus_pvm }}</li>
-                <li><strong>Auto:</strong> {{ lainaus.auto.marca }} {{ lainaus.auto.modelo }}</li>
-                <li><strong>Ajoneuvon väri:</strong> {{ lainaus.auto.color }}</li>
-            </ul>
+                <!-- Kilometriluku palautettaessa -->
+                <div class="form-group">
+                    <label for="kilometraje">Kilometriluku palautettaessa:</label>
+                    <input 
+                        type="number" 
+                        id="kilometraje" 
+                        name="kilometraje" 
+                        placeholder="Kirjoita kilometriluku" 
+                        required 
+                        class="form-control">
+                </div>
 
-            <!-- Toiminnot -->
-            <div class="form-buttons">
-                <button type="submit" class="btn btn-primary">Vahvista Palautus</button>
-                <a href="{% url 'hallinto' %}" class="btn btn-secondary">Peruuta</a>
-            </div>
-        </form>
+                <!-- Piilotettu kenttä auton ID:lle -->
+                <input type="hidden" name="auto_id" value="{{ lainaus.auto.id }}">
+
+                <!-- Lainauksen tiedot -->
+                <h2>Lainauksen tiedot</h2>
+                <ul>
+                    <li><strong>Opiskelijan nimi:</strong> {{ lainaus.opiskelija.nimi }}</li>
+                    <li><strong>Opiskelija ID:</strong> {{ lainaus.opiskelija.id }}</li>
+                    <li><strong>Lainaus päivämäärä:</strong> {{ lainaus.lainaus_pvm }}</li>
+                    <li><strong>Sovittu palautuspäivämäärä:</strong> {{ lainaus.palautus_pvm }}</li>
+                    <li><strong>Auto:</strong> {{ lainaus.auto.marca }} {{ lainaus.auto.modelo }}</li>
+                    <li><strong>Ajoneuvon väri:</strong> {{ lainaus.auto.color }}</li>
+                </ul>
+
+                <!-- Toimintopainikkeet -->
+                <div class="form-buttons">
+                    <button type="submit" class="btn btn-primary">Vahvista Palautus</button>
+                    <a href="{% url 'hallinto' %}" class="btn btn-secondary">Peruuta</a>
+                </div>
+            </form>
+        </section>
     </div>
 
+    <!-- JavaScript-koodi viivakoodin lukemiseen -->
     <script>
-        // Añadimos un listener para el campo de código de barras
+        // Lisätään kuuntelija viivakoodin syöttökentälle
         document.getElementById('barcode_input').addEventListener('input', function (event) {
             const barcode = event.target.value;
 
             if (barcode) {
-                // Realizar una búsqueda con el código de barras
+                // Haetaan lainauksen tiedot viivakoodin perusteella
                 fetch(`/hae_lainaus_tiedot/${barcode}`)
                     .then(response => response.json())
                     .then(data => {
                         if (data.success) {
-                            // Redirigir con la ID del préstamo
+                            // Siirrytään palautussivulle
                             window.location.href = `/palautus/${data.lainaus_id}`;
                         } else {
                             alert('Viivakoodia ei löytynyt järjestelmästä!');
