@@ -91,13 +91,15 @@ gunicorn autolainausdjango.wsgi:application
 
 Varmista, että staattiset tiedostot (static/) on konfiguroitu oikein tuotantoa varten (voit käyttää komentoa python manage.py collectstatic).
 
+
 ## Versionhallinta ja yhteistyösäännöt
 
-## Haarat:
-
-Käytä main-haaraa päähaarana.
-
-Luo uusia haaroja ominaisuuksille tai korjauksille, esimerkiksi feature/uusi-ominaisuus tai bugfix/korjaa-virhe.
+- **Branchit**:
+  - Käytä `main`-branchiä pääbranchinä.
+  - Luo uusia branchejä ominaisuuksille tai korjauksille, esimerkiksi `feature/uusi-ominaisuus` tai `bugfix/korjaa-virhe`.
+- **Pull requestit**:
+  - Kaikki muutokset tulee tehdä pull requestien kautta.
+  - Vähintään yhden tiimin jäsenen tulee tarkastaa ja hyväksyä pull request ennen sen yhdistämistä `main`-branchiin.
 
 ## Pull requestit:
 
