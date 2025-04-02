@@ -5,7 +5,7 @@ AutolainausDjango on ajoneuvojen lainausjärjestelmä, joka on rakennettu Django
 ## Teknologiat
 - **Django**: Web-kehys backendille.
 - **SQLite**: Oletustietokanta (myöhemmin siirretty PostgreSQL:ään).
-- **Python 3.x**: Ohjelmointikieli.
+- **Python 3.11**: Ohjelmointikieli.
 - **Bootstrap**: Käytetty käyttöliittymän suunnitteluun (löytyy kansiosta `static/css`).
 - Muut riippuvuudet on listattu tiedostossa `requirements.txt`.
 
